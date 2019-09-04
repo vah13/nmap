@@ -56,7 +56,7 @@ only the potentially risky methods are shown.
 -- @see http-put.nse
 
 
-author = {"Bernd Stroessenreuther <berny1@users.sourceforge.net>", "Gyanendra Mishra"}
+author = {"Bernd Stroessenreuther <berny1@users.sourceforge.net>", "Gyanendra Mishra", "customization Vahagn @vah_13 Vardanian"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -162,17 +162,10 @@ action = function(host, port)
 
 
 
-  local random_resp = http.generic_request(host, port, stdnse.generate_random_string(4), path)
-
-  if random_resp.status then
-    stdnse.debug1("Response Code to Random Method is %d", random_resp.status)
-  else
-    stdnse.debug1("Random Method %s failed.", path)
-  end
 
   for _, method in pairs(to_test) do
     response = http.generic_request(host, port, method, path)
-    if response.status and check_allowed(random_resp, response) then
+    if response.status then
       stdnse.debug2("Method %s not in OPTIONS found to exist. STATUS %d", method, response.status)
       table.insert(methods, method)
       status_lines[method] = response['status-line']
@@ -186,11 +179,7 @@ action = function(host, port)
   end
 
   local interesting = filter_out(methods, SAFE_METHODS)
-  if #interesting > 0 then
-    output["Potentially risky methods"] = interesting
-    setmetatable(output["Potentially risky methods"], spacesep)
-  end
-
+  
   if path ~= '/' then
     output["Path tested"] = path
   end
