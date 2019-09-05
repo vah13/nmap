@@ -1,4 +1,6 @@
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 report_file = r"C:\Users\vava\Desktop\research\att\search_services\nohup.out"
 matches = "@vah_13 status code: 302"
@@ -14,10 +16,12 @@ def get_domain_from_scan(str):
 
 
 def get_content_from_uri(uri):
-    _content = requests.get(uri, verify=False, allow_redirects=True).content
-    if _scan_content in _content:
-        return "OK"
-
+    try:
+        _content = requests.get(uri, verify=False, allow_redirects=True).content
+        if _scan_content in _content:
+            return "OK"
+    except:
+        pass
 
 with open(report_file, 'r') as f:
     lines = f.readlines()
@@ -29,5 +33,7 @@ for line in lines:
         domain = get_domain_from_scan(lines[i - 7].strip())
         if _except not in domain:
             URI =  "https://" + domain + scan_path
+            print "*"*10
             print "[*] Start scan {0}".format(URI)
             print get_content_from_uri(URI)
+            print "*"*10+'\n\n'
